@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Shadowing">
+<title>Luyện nói tiếng Anh – Shadowing</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#121821; --panel2:#18202b; --line:#243041;
+    --text:#eef2f6; --muted:#8a97a8; --green:#22c55e; --green2:#16a34a;
+    --greenSoft:rgba(34,197,94,.14); --red:#ef4444; --amber:#f59e0b;
+    --safeT:env(safe-area-inset-top,0px); --safeB:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-text-size-adjust:100%;overscroll-behavior:none}
+  body{display:flex;justify-content:center}
+  .app{width:100%;max-width:560px;min-height:100%;display:flex;flex-direction:column;
+    padding:calc(var(--safeT) + 10px) 18px calc(var(--safeB) + 16px)}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
+  /* top */
+  .progress{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden}
+  .progress>i{display:block;height:100%;width:0;background:var(--green);border-radius:99px;transition:width .35s ease}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:8px}
+  .brand{font-weight:800;letter-spacing:.3px;font-size:15px;display:flex;align-items:center;gap:8px}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+  .counter{font-size:14px;color:var(--muted);padding:6px 10px;border-radius:99px;background:var(--panel)}
+  .counter b{color:var(--text)}
+  .iconbtn{width:40px;height:40px;border-radius:12px;background:var(--panel);display:grid;place-items:center;color:var(--muted)}
+  .iconbtn:active{background:var(--panel2)}
+  .iconbtn svg{width:21px;height:21px}
+  .tools{display:flex;gap:8px}
+  /* status */
+  .status{margin-top:22px;min-height:40px;text-align:center;font-size:13px;font-weight:800;letter-spacing:1.4px;
+    text-transform:uppercase;color:var(--green);line-height:1.45}
+  .status.warn{color:var(--amber)} .status.err{color:var(--red)} .status.idle{color:var(--muted)}
+  .status.rec{color:#fff}
+  /* card */
+  .stage{flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;padding:8px 0}
+  .card{background:linear-gradient(180deg,var(--panel),#0f151d);border:1px solid var(--line);border-radius:24px;
+    padding:30px 22px;text-align:center;transition:border-color .25s, box-shadow .25s;min-height:210px;
+    display:flex;flex-direction:column;justify-content:center}
+  .card.bot{border-color:rgba(34,197,94,.45)}
+  .card.rec{border-color:var(--green);box-shadow:0 0 0 3px rgba(34,197,94,.25),0 0 40px rgba(34,197,94,.18)}
+  .card.cue{animation:cue .5s ease}
+  @keyframes cue{0%{box-shadow:0 0 0 0 rgba(34,197,94,.9)}100%{box-shadow:0 0 0 22px rgba(34,197,94,0)}}
+  .sentence{font-size:clamp(24px,7.4vw,32px);font-weight:700;line-height:1.35;letter-spacing:-.2px;word-wrap:break-word}
+  .sentence.m{font-size:clamp(22px,6.4vw,28px)} .sentence.l{font-size:clamp(20px,5.6vw,25px)} .sentence.xl{font-size:clamp(18px,5vw,22px)}
+  .ipa{margin-top:16px;color:#9fb0c3;font-size:clamp(15px,4.3vw,18px);line-height:1.5;
+    font-family:"Charis SIL","Doulos SIL","Lucida Sans Unicode","Arial Unicode MS",-apple-system,Roboto,sans-serif;min-height:1.5em}
+  .ipa.hide{visibility:hidden}
+  .ipa .miss{opacity:.55;font-style:italic}
+  /* orb */
+  .orbwrap{display:flex;flex-direction:column;align-items:center;gap:10px;min-height:118px;justify-content:center}
+  .orb{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:var(--panel);
+    border:1px solid var(--line);color:var(--muted);transition:transform .08s linear, background .2s, color .2s;position:relative}
+  .orb svg{width:36px;height:36px}
+  .orb.bot,.orb.play{color:var(--green);background:var(--greenSoft);border-color:rgba(34,197,94,.4);animation:pulse 1.4s ease-in-out infinite}
+  .orb.rec{color:#06210f;background:var(--green);border-color:var(--green)}
+  .orb .ring{position:absolute;inset:-10px;border-radius:50%;border:3px solid rgba(34,197,94,.55);transform:scale(1);opacity:0;transition:transform .08s linear,opacity .2s}
+  .orb.rec .ring{opacity:1}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+  .meter{width:180px;height:8px;border-radius:99px;background:var(--panel2);overflow:hidden;opacity:0;transition:opacity .2s}
+  .meter.on{opacity:1}
+  .meter>i{display:block;height:100%;width:0;background:var(--green);transition:width .06s linear}
+  .hint{font-size:14px;color:var(--muted);text-align:center;min-height:20px}
+  /* controls */
+  .controls{display:flex;flex-direction:column;gap:12px;min-height:150px;justify-content:flex-end}
+  .row{display:flex;gap:12px}
+  .big{flex:1;height:64px;border-radius:18px;font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px}
+  .big svg{width:22px;height:22px}
+  .primary{background:var(--green);color:#04170b}
+  .primary:active{background:var(--green2)}
+  .secondary{background:var(--panel2);border:1px solid var(--line);color:var(--text)}
+  .secondary:active{background:#1f2937}
+  .small{height:44px;border-radius:14px;padding:0 16px;font-size:15px;font-weight:700;background:var(--panel);color:var(--muted);
+    display:inline-flex;align-items:center;justify-content:center;gap:8px}
+  .small svg{width:18px;height:18px}
+  .smallrow{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+  .hidden{display:none!important}
+  .autonote{text-align:center;font-size:13px;color:var(--muted)}
+  /* sheets */
+  .sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;justify-content:center;align-items:flex-end;z-index:20}
+  .sheet .panel{width:100%;max-width:560px;max-height:92%;overflow:auto;background:var(--panel);border-radius:22px 22px 0 0;
+    padding:20px 18px calc(var(--safeB) + 20px);border:1px solid var(--line);border-bottom:0}
+  .sheet h2{margin:0 0 4px;font-size:20px}
+  .sheet p.sub{margin:0 0 14px;color:var(--muted);font-size:14px;line-height:1.45}
+  textarea{width:100%;min-height:46vh;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:14px;
+    padding:12px;font-size:16px;line-height:1.5;font-family:inherit;resize:vertical}
+  .field{padding:14px 0;border-bottom:1px solid var(--line)}
+  .field label{display:flex;justify-content:space-between;align-items:center;font-size:16px;gap:10px}
+  .field label span.val{color:var(--green);font-weight:700;font-variant-numeric:tabular-nums}
+  .field small{display:block;color:var(--muted);margin-top:4px;font-size:13px}
+  input[type=range]{width:100%;margin-top:12px;accent-color:var(--green);height:28px}
+  select{width:100%;margin-top:10px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px}
+  .switch{position:relative;width:52px;height:30px;flex:none}
+  .switch input{opacity:0;width:0;height:0}
+  .switch i{position:absolute;inset:0;background:var(--panel2);border:1px solid var(--line);border-radius:99px;transition:.2s}
+  .switch i::after{content:"";position:absolute;width:24px;height:24px;left:2px;top:2px;border-radius:50%;background:#cbd5e1;transition:.2s}
+  .switch input:checked+i{background:var(--green);border-color:var(--green)}
+  .switch input:checked+i::after{transform:translateX(22px);background:#fff}
+  .sheetbtns{display:flex;gap:10px;margin-top:16px}
+  .sheetbtns .big{height:54px;font-size:17px}
+  .toast{position:fixed;left:50%;bottom:calc(var(--safeB) + 24px);transform:translateX(-50%);background:#1f2937;color:#fff;
+    padding:12px 18px;border-radius:14px;font-size:15px;z-index:30;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90%;text-align:center}
+  .toast.on{opacity:1}
+  .errbox{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#fecaca;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="progress"><i id="bar"></i></div>
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span>Shadowing</div>
+    <button class="counter" id="counter" aria-label="Đi tới câu"><b id="cur">1</b> / <span id="tot">30</span></button>
+    <div class="tools">
+      <button class="iconbtn" id="btnList" aria-label="Danh sách câu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>
+      </button>
+      <button class="iconbtn" id="btnSettings" aria-label="Cài đặt">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="status idle" id="status">Sẵn sàng luyện nói</div>
+
+  <div class="stage">
+    <div class="card" id="card">
+      <div class="sentence" id="sentence"></div>
+      <div class="ipa hide" id="ipa">&nbsp;</div>
+    </div>
+    <div class="orbwrap">
+      <div class="orb" id="orb"><span class="ring" id="ring"></span><span id="orbIcon"></span></div>
+      <div class="meter" id="meter"><i id="meterFill"></i></div>
+      <div class="hint" id="hint"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <!-- start -->
+    <div id="ctlStart">
+      <div class="row"><button class="big primary" id="btnStart">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Bắt đầu</button></div>
+      <p class="autonote" style="margin:12px 0 0">Bấm một lần để bật loa &amp; micro. Sau đó mọi thứ tự động.</p>
+    </div>
+    <!-- running -->
+    <div id="ctlRun" class="hidden">
+      <div class="smallrow">
+        <button class="small" id="btnStop"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>Tạm dừng</button>
+        <button class="small hidden" id="btnSkipRec"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>Xong, dừng ghi</button>
+      </div>
+    </div>
+    <!-- done -->
+    <div id="ctlDone" class="hidden">
+      <div class="autonote hidden" id="autoNote"></div>
+      <div class="row" style="margin-top:8px">
+        <button class="big secondary" id="btnRepeat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Đọc lại</button>
+        <button class="big primary" id="btnNext">Câu tiếp<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+      <div class="smallrow" style="margin-top:12px">
+        <button class="small" id="btnPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>Câu trước</button>
+        <button class="small hidden" id="btnReplayMe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 15a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2zM3 15a2 2 0 0 0 2 2h1v-5H5a2 2 0 0 0-2 2z"/></svg>Nghe lại giọng anh</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- list sheet -->
+<div class="sheet hidden" id="sheetList">
+  <div class="panel">
+    <h2>Danh sách câu</h2>
+    <p class="sub">Dán các câu tiếng Anh của anh vào đây, <b>mỗi dòng một câu</b>. Bấm “Lưu” để dùng danh sách mới. Dữ liệu chỉ lưu trên điện thoại này.</p>
+    <textarea id="listText" spellcheck="false" autocapitalize="sentences"></textarea>
+    <p class="sub" id="listCount" style="margin:8px 0 0"></p>
+    <div class="sheetbtns">
+      <button class="big secondary" id="listCancel">Đóng</button>
+      <button class="big primary" id="listSave">Lưu</button>
+    </div>
+    <div class="smallrow" style="margin-top:12px">
+      <button class="small" id="listReset">Khôi phục danh sách mẫu</button>
+    </div>
+  </div>
+</div>
+
+<!-- settings sheet -->
+<div class="sheet hidden" id="sheetSettings">
+  <div class="panel">
+    <h2>Cài đặt</h2>
+    <div class="field">
+      <label>Tốc độ đọc <span class="val" id="vRate"></span></label>
+      <input type="range" id="sRate" min="0.6" max="1.2" step="0.05">
+    </div>
+    <div class="field">
+      <label>Lần đọc sau chậm hơn một chút
+        <span class="switch"><input type="checkbox" id="sSlow"><i></i></span></label>
+    </div>
+    <div class="field">
+      <label>Số lần bot đọc <span class="val" id="vReads"></span></label>
+      <input type="range" id="sReads" min="1" max="4" step="1">
+    </div>
+    <div class="field">
+      <label>Nghỉ giữa các lần đọc <span class="val" id="vPause"></span></label>
+      <input type="range" id="sPause" min="0.3" max="3" step="0.1">
+    </div>
+    <div class="field">
+      <label>Tự dừng ghi khi im lặng <span class="val" id="vSilence"></span></label>
+      <input type="range" id="sSilence" min="0.8" max="3" step="0.1">
+      <small>Sau khi anh nói xong, im lặng bao lâu thì app tự dừng ghi âm.</small>
+    </div>
+    <div class="field">
+      <label>Tự chuyển sang câu tiếp
+        <span class="switch"><input type="checkbox" id="sAuto"><i></i></span></label>
+      <small>Bật: sau khi phát lại giọng anh, app tự sang câu tiếp sau 2 giây.</small>
+    </div>
+    <div class="field">
+      <label>Hiện phiên âm IPA
+        <span class="switch"><input type="checkbox" id="sIpa"><i></i></span></label>
+    </div>
+    <div class="field">
+      <label>Giọng đọc</label>
+      <select id="sVoice"></select>
+      <div class="smallrow" style="justify-content:flex-start;margin-top:10px"><button class="small" id="btnTestVoice">▶ Nghe thử</button></div>
+      <small>iPhone: có thể tải giọng “Enhanced/Premium” trong Cài đặt › Trợ năng › Nội dung được đọc › Giọng nói › English để giọng tự nhiên hơn.</small>
+    </div>
+    <div class="sheetbtns"><button class="big primary" id="settingsClose">Xong</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<audio id="player" playsinline preload="auto"></audio>
+
+<script>
+(function(){
+'use strict';
+var $ = function(s){ return document.querySelector(s); };
+var LS = {
+  get: function(k, d){ try{ var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set: function(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+var DEFAULT_SENTENCES = [
+  "Would you mind closing the window? It's getting a bit chilly in here.",
+  "Could you send me the latest version of the report by the end of the day?",
+  "I'm afraid I can't make it to the meeting this afternoon.",
+  "Let's touch base next week to see how the campaign is going.",
+  "Sorry to interrupt, but could I add something here?",
+  "That's a great point. I hadn't thought about it that way.",
+  "Could you walk me through the main findings?",
+  "I'd like to follow up on the email I sent you last Tuesday.",
+  "We need to keep the budget under control this quarter.",
+  "Can we push the deadline back to Friday?",
+  "I'll get back to you as soon as I have more information.",
+  "Just to be clear, are we targeting young professionals or students?",
+  "What do you think is the biggest challenge for our brand right now?",
+  "Let me share my screen so everyone can see the numbers.",
+  "Our engagement rate went up by fifteen percent last month.",
+  "I really appreciate your help with this project.",
+  "Do you have a minute? I'd like to run an idea by you.",
+  "Could you speak a little more slowly, please?",
+  "I'm sorry, I didn't quite catch that. Could you say it again?",
+  "How was your weekend? Did you do anything fun?",
+  "I usually grab a coffee before I start work in the morning.",
+  "Excuse me, is this seat taken?",
+  "Could I get the bill, please? We're in a bit of a hurry.",
+  "It was really nice meeting you. Let's keep in touch.",
+  "I'm looking forward to working with you on this.",
+  "Let's make sure everyone is on the same page before we launch.",
+  "To be honest, I think we should focus on quality rather than quantity.",
+  "Could you give me a quick update on the social media campaign?",
+  "Thanks for your patience. I know this has taken longer than expected.",
+  "Have a great evening, and I'll see you tomorrow."
+];
+var DEFAULT_SETTINGS = { rate: 0.9, slowSecond: true, reads: 2, pause: 1.0, silence: 1.5, autoNext: false, showIpa: true, voiceURI: '' };
+
+var settings = Object.assign({}, DEFAULT_SETTINGS, LS.get('sh.settings', {}));
+var sentences = LS.get('sh.sentences', null);
+if (!Array.isArray(sentences) || !sentences.length) sentences = DEFAULT_SENTENCES.slice();
+var idx = clamp(parseInt(LS.get('sh.index', 0), 10) || 0, 0, sentences.length - 1);
+var round = 1;
+var token = 0;           // increments to cancel any running loop
+var running = false;
+var started = false;
+var audioCtx = null, micStream = null, micSource = null, recorder = null;
+var lastBlob = null, lastBlobUrl = null, lastPlayMs = 0;
+var keepUtter = [];      // keep references so iOS/Chrome don't GC utterances mid-speech
+var voices = [], voice = null;
+var wakeLock = null;
+var autoTimer = null;
+var synth = window.speechSynthesis || null;
+var player = $('#player');
+
+function Abort(){ this.name = 'Abort'; }
+function isAbort(e){ return e && e.name === 'Abort'; }
+function check(t){ if (t !== token) throw new Abort(); }
+function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+/* ---------------- UI helpers ---------------- */
+var ICONS = {
+  speaker: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>',
+  mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 15a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2zM3 15a2 2 0 0 0 2 2h1v-5H5a2 2 0 0 0-2 2z" fill="currentColor"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>'
+};
+function setStatus(text, cls){ var s = $('#status'); s.textContent = text; s.className = 'status' + (cls ? ' ' + cls : ''); }
+function setHint(t){ $('#hint').textContent = t || ''; }
+function setPhase(phase){ // idle | bot | rec | play | done
+  var orb = $('#orb'), card = $('#card');
+  orb.className = 'orb' + (phase === 'bot' || phase === 'rec' || phase === 'play' ? ' ' + phase : '');
+  card.classList.toggle('bot', phase === 'bot');
+  card.classList.toggle('rec', phase === 'rec');
+  $('#orbIcon').innerHTML = phase === 'rec' ? ICONS.mic : phase === 'play' ? ICONS.play : phase === 'done' ? ICONS.check : ICONS.speaker;
+  $('#meter').classList.toggle('on', phase === 'rec');
+  if (phase !== 'rec'){ orb.style.transform = ''; $('#ring').style.transform = ''; $('#meterFill').style.width = '0'; }
+}
+function showControls(which){ // start | run | done
+  $('#ctlStart').classList.toggle('hidden', which !== 'start');
+  $('#ctlRun').classList.toggle('hidden', which !== 'run');
+  $('#ctlDone').classList.toggle('hidden', which !== 'done');
+}
+var toastTimer = null;
+function toast(msg){ var t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 2400); }
+
+function renderSentence(){
+  var s = sentences[idx] || '';
+  var el = $('#sentence');
+  el.textContent = s;
+  el.className = 'sentence' + (s.length > 150 ? ' xl' : s.length > 100 ? ' l' : s.length > 60 ? ' m' : '');
+  $('#cur').textContent = idx + 1;
+  $('#tot').textContent = sentences.length;
+  $('#bar').style.width = ((idx + 1) / sentences.length * 100) + '%';
+  renderIpa(idx);
+  LS.set('sh.index', idx);
+}
+
+/* ---------------- IPA (dictionaryapi.dev, cached) ---------------- */
+var ipaCache = LS.get('sh.ipa', {});
+var BUILTIN_IPA = { "a":"ə","the":"ðə","i":"aɪ","i'm":"aɪm","it's":"ɪts","don't":"doʊnt","can't":"kænt","i'll":"aɪl","i'd":"aɪd","i've":"aɪv",
+  "you're":"jʊr","we're":"wɪr","they're":"ðɛr","let's":"lɛts","that's":"ðæts","what's":"wʌts","there's":"ðɛrz","won't":"woʊnt",
+  "isn't":"ˈɪzənt","doesn't":"ˈdʌzənt","didn't":"ˈdɪdənt","wouldn't":"ˈwʊdənt","couldn't":"ˈkʊdənt","shouldn't":"ˈʃʊdənt",
+  "we'll":"wil","you'll":"jul","he's":"hiz","she's":"ʃiz","aren't":"ɑrnt","wasn't":"ˈwʌzənt","haven't":"ˈhævənt","hadn't":"ˈhædənt",
+  "here's":"hɪrz","you've":"juv","we've":"wiv","they'll":"ðeɪl","you'd":"jud","we'd":"wid","who's":"huz","how's":"haʊz","where's":"wɛrz" };
+var ipaSaveTimer = null;
+function saveIpaCache(){ clearTimeout(ipaSaveTimer); ipaSaveTimer = setTimeout(function(){ LS.set('sh.ipa', ipaCache); }, 400); }
+function tokenize(s){
+  return s.replace(/[\u2018\u2019]/g, "'").split(/[\s\u2014\u2013-]+/).map(function(w){
+    return w.replace(/^[^A-Za-z']+|[^A-Za-z']+$/g, '').replace(/^'+|'+$/g, '');
+  }).filter(Boolean);
+}
+function pickIpa(data){
+  if (!Array.isArray(data)) return '';
+  var best = '', fallback = '';
+  data.forEach(function(entry){
+    (entry.phonetics || []).forEach(function(p){
+      if (!p.text) return;
+      if (!best && p.audio && /-us\.mp3/i.test(p.audio)) best = p.text;
+      if (!fallback) fallback = p.text;
+    });
+    if (!fallback && entry.phonetic) fallback = entry.phonetic;
+  });
+  return (best || fallback || '').replace(/^[\/\[]+|[\/\]]+$/g, '').trim();
+}
+var inflight = {};
+function fetchWithTimeout(url, ms){
+  var ctl = window.AbortController ? new AbortController() : null;
+  var tm = setTimeout(function(){ if (ctl) ctl.abort(); }, ms);
+  return fetch(url, ctl ? { signal: ctl.signal } : {}).finally(function(){ clearTimeout(tm); });
+}
+// Offline US-English IPA dictionary (~18k common words, generated from CMUdict) shipped with the app.
+var localDictP = null;
+function localDict(){
+  if (!localDictP) localDictP = fetchWithTimeout('ipa-dict.json', 15000).then(function(r){ return r.ok ? r.json() : {}; }).catch(function(){ localDictP = null; return {}; });
+  return localDictP;
+}
+var apiDownUntil = 0;
+function lookupWord(w){
+  var k = w.toLowerCase();
+  if (BUILTIN_IPA[k]) return Promise.resolve(BUILTIN_IPA[k]);
+  return localDict().then(function(d){
+    if (d && d[k]) return d[k];
+    if (d && /'s$/.test(k) && d[k.slice(0, -2)]) return d[k.slice(0, -2)] + 'z';
+    if (Object.prototype.hasOwnProperty.call(ipaCache, k)) return ipaCache[k];
+    if (/\d/.test(k)) return '';
+    return lookupApi(k);
+  });
+}
+function lookupApi(k){
+  if (inflight[k]) return inflight[k];
+  if (Date.now() < apiDownUntil) return Promise.resolve(null);
+  var p = fetchWithTimeout('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(k), 6000).then(function(r){
+    if (r.status === 404) return '';
+    if (!r.ok){ apiDownUntil = Date.now() + 60000; throw new Error('http ' + r.status); }
+    return r.json().then(pickIpa);
+  }).then(function(ipa){
+    if (!ipa && /'s$/.test(k)) { // possessive: john's -> john + z
+      return lookupWord(k.slice(0, -2)).then(function(b){ return b ? b + 'z' : ''; });
+    }
+    return ipa;
+  }).then(function(ipa){
+    ipaCache[k] = ipa; saveIpaCache(); delete inflight[k]; return ipa;
+  }, function(){ delete inflight[k]; apiDownUntil = Math.max(apiDownUntil, Date.now() + 30000); return null; /* network problem: don't cache, back off */ });
+  inflight[k] = p;
+  return p;
+}
+function renderIpa(forIdx){
+  var el = $('#ipa');
+  el.classList.add('hide'); el.innerHTML = '&nbsp;';
+  if (!settings.showIpa || !window.fetch) return;
+  var words = tokenize(sentences[forIdx] || '');
+  if (!words.length) return;
+  Promise.all(words.map(lookupWord)).then(function(list){
+    if (forIdx !== idx) return;
+    var miss = 0;
+    var html = list.map(function(ipa, i){
+      if (ipa) return escapeHtml(ipa);
+      miss++; return '<span class="miss">' + escapeHtml(words[i].toLowerCase()) + '</span>';
+    }).join(' ');
+    if (miss / list.length > 0.4) return; // too incomplete / offline -> keep hidden
+    el.innerHTML = '/' + html + '/';
+    el.classList.remove('hide');
+  }).catch(function(){});
+  // warm cache for the next sentence quietly
+  var nxt = sentences[(forIdx + 1) % sentences.length];
+  if (nxt) setTimeout(function(){ tokenize(nxt).forEach(lookupWord); }, 1500);
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]; }); }
+
+/* ---------------- Voices / TTS ---------------- */
+var NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|ralph|kathy|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley/i;
+function scoreVoice(v){
+  var s = 0, lang = (v.lang || '').replace('_', '-').toLowerCase(), name = v.name || '';
+  if (lang === 'en-us') s += 40; else if (lang.indexOf('en') === 0) s += 15; else return -999;
+  if (/premium|enhanced|natural|neural|siri/i.test(name)) s += 25;
+  if (/google us english/i.test(name)) s += 18;
+  if (/samantha|ava|allison|susan|zoe|evan|nathan|joelle|noelle|aria|jenny|guy/i.test(name)) s += 10;
+  if (NOVELTY.test(name)) s -= 60;
+  if (/compact/i.test(name)) s -= 5;
+  return s;
+}
+function englishVoices(){
+  return voices.filter(function(v){ return /^en[-_]/i.test(v.lang || ''); })
+               .sort(function(a, b){ return scoreVoice(b) - scoreVoice(a); });
+}
+function chooseVoice(){
+  var list = englishVoices();
+  voice = null;
+  if (settings.voiceURI) voice = list.filter(function(v){ return v.voiceURI === settings.voiceURI; })[0] || null;
+  if (!voice) voice = list[0] || null;
+  fillVoiceSelect();
+}
+function loadVoices(){
+  return new Promise(function(resolve){
+    if (!synth) return resolve();
+    var tries = 0;
+    function grab(){ voices = synth.getVoices() || []; if (voices.length){ chooseVoice(); return true; } return false; }
+    if (grab()) return resolve();
+    var iv = setInterval(function(){ tries++; if (grab() || tries > 12){ clearInterval(iv); resolve(); } }, 250);
+  });
+}
+if (synth){
+  try { synth.addEventListener('voiceschanged', function(){ voices = synth.getVoices() || []; chooseVoice(); }); }
+  catch(e){ synth.onvoiceschanged = function(){ voices = synth.getVoices() || []; chooseVoice(); }; }
+  loadVoices();
+}
+function fillVoiceSelect(){
+  var sel = $('#sVoice'); if (!sel) return;
+  var list = englishVoices();
+  sel.innerHTML = '';
+  var auto = document.createElement('option'); auto.value = ''; auto.textContent = 'Tự động (giọng Mỹ tốt nhất)'; sel.appendChild(auto);
+  list.forEach(function(v){ var o = document.createElement('option'); o.value = v.voiceURI; o.textContent = v.name + ' (' + v.lang + ')'; sel.appendChild(o); });
+  sel.value = settings.voiceURI || '';
+}
+
+function speak(text, rate, t){
+  return new Promise(function(resolve){
+    if (!synth){ resolve(false); return; }
+    var u = new SpeechSynthesisUtterance(text);
+    if (voice){ u.voice = voice; u.lang = voice.lang; } else u.lang = 'en-US';
+    u.rate = rate; u.pitch = 1; u.volume = 1;
+    keepUtter.push(u); if (keepUtter.length > 8) keepUtter.shift();
+    var done = false, gotStart = false;
+    var words = text.split(/\s+/).length;
+    var est = (words / 2.5) / rate * 1000;
+    function finish(ok){
+      if (done) return; done = true;
+      clearTimeout(hard); clearTimeout(noStart); clearInterval(watch);
+      resolve(ok);
+    }
+    u.onstart = function(){ gotStart = true; };
+    u.onend = function(){ finish(true); };
+    u.onerror = function(){ finish(false); };
+    var hard = setTimeout(function(){ finish(true); }, est + 8000);              // onend sometimes never fires
+    var noStart = setTimeout(function(){ if (!gotStart && !synth.speaking) finish(false); }, 6000);
+    var watch = setInterval(function(){
+      if (t !== undefined && t !== token) finish(false);
+      else if (synth.paused) { try { synth.resume(); } catch(e){} }
+    }, 150);
+    synth.speak(u);
+  });
+}
+async function synthReset(){
+  if (synth && (synth.speaking || synth.pending)){ synth.cancel(); await sleep(150); }
+}
+
+/* ---------------- Audio unlock / beep ---------------- */
+function setAudioSession(type){ try { if (navigator.audioSession) navigator.audioSession.type = type; } catch(e){} }
+function ensureCtx(){
+  if (!audioCtx){
+    var C = window.AudioContext || window.webkitAudioContext;
+    if (C) audioCtx = new C();
+  }
+  return audioCtx;
+}
+function silentWavUrl(){
+  var sr = 8000, n = 400, b = new ArrayBuffer(44 + n * 2), v = new DataView(b);
+  function ws(o, s){ for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+  ws(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); ws(8, 'WAVE'); ws(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  ws(36, 'data'); v.setUint32(40, n * 2, true);
+  return URL.createObjectURL(new Blob([b], { type: 'audio/wav' }));
+}
+function unlockAudio(){ // must run synchronously inside the tap handler
+  setAudioSession('playback');
+  var ctx = ensureCtx();
+  if (ctx){
+    try { ctx.resume(); } catch(e){}
+    try { var b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource(); s.buffer = b; s.connect(ctx.destination); s.start(0); } catch(e){}
+  }
+  try { player.muted = false; player.src = silentWavUrl(); var p = player.play(); if (p && p.catch) p.catch(function(){}); } catch(e){}
+  if (synth){
+    try { var u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.lang = 'en-US'; keepUtter.push(u); synth.speak(u); } catch(e){}
+  }
+}
+async function beep(){
+  var card = $('#card'); card.classList.remove('cue'); void card.offsetWidth; card.classList.add('cue');
+  if (navigator.vibrate) { try { navigator.vibrate(60); } catch(e){} }
+  var ctx = ensureCtx(); if (!ctx) return;
+  try {
+    if (ctx.state !== 'running') await Promise.race([ctx.resume(), sleep(300)]);
+    var o = ctx.createOscillator(), g = ctx.createGain(), now = ctx.currentTime;
+    o.type = 'sine'; o.frequency.setValueAtTime(880, now); o.frequency.setValueAtTime(1175, now + 0.09);
+    g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(0.35, now + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+    o.connect(g); g.connect(ctx.destination); o.start(now); o.stop(now + 0.25);
+  } catch(e){}
+  await sleep(260);
+}
+
+/* ---------------- Recording ---------------- */
+function pickMime(){
+  if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+  var list = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/mp4;codecs=mp4a.40.2', 'audio/aac', 'audio/ogg;codecs=opus'];
+  for (var i = 0; i < list.length; i++) if (MediaRecorder.isTypeSupported(list[i])) return list[i];
+  return '';
+}
+function getMic(){
+  setAudioSession('play-and-record');
+  return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+}
+function releaseMic(){
+  if (micSource){ try { micSource.disconnect(); } catch(e){} micSource = null; }
+  if (micStream){ micStream.getTracks().forEach(function(tr){ try { tr.stop(); } catch(e){} }); micStream = null; }
+  setAudioSession('playback');
+}
+function MicError(e){ this.name = 'MicError'; this.orig = e; }
+
+async function recordUser(t, text){
+  var stream;
+  try { stream = await getMic(); } catch(e){ setAudioSession('playback'); throw new MicError(e); }
+  if (t !== token){ stream.getTracks().forEach(function(x){ x.stop(); }); setAudioSession('playback'); throw new Abort(); }
+  micStream = stream;
+  var ctx = ensureCtx();
+  var an = null, fbuf = null, bbuf = null;
+  if (ctx){
+    try { if (ctx.state !== 'running') await Promise.race([ctx.resume(), sleep(400)]); } catch(e){}
+    micSource = ctx.createMediaStreamSource(stream);
+    an = ctx.createAnalyser(); an.fftSize = 1024; micSource.connect(an);
+    if (an.getFloatTimeDomainData) fbuf = new Float32Array(an.fftSize); else bbuf = new Uint8Array(an.fftSize);
+  }
+  check(t);
+  setPhase('rec');
+  setStatus('ĐẾN LƯỢT ANH ĐỌC', 'rec');
+  setHint('Anh đọc to câu trên — app tự dừng khi anh ngừng nói');
+  $('#btnSkipRec').classList.remove('hidden');
+  await beep();
+  if (t !== token){ releaseMic(); throw new Abort(); }
+
+  var mime = pickMime();
+  var rec;
+  try { rec = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream); }
+  catch(e){ rec = new MediaRecorder(stream); }
+  var chunks = [];
+  rec.ondataavailable = function(e){ if (e.data && e.data.size) chunks.push(e.data); };
+  var stopped = new Promise(function(r){ rec.onstop = r; });
+  rec.start();
+  recorder = rec;
+
+  var words = text.split(/\s+/).length;
+  var maxMs = clamp(4000 + words * 650, 7000, 20000);
+  var noSpeechMs = 7000;
+  var silenceMs = settings.silence * 1000;
+  var t0 = performance.now(), last = t0, noise = 0, noiseN = 0, speechMs = 0, detected = false, lastVoice = t0;
+  var orb = $('#orb'), ring = $('#ring'), fill = $('#meterFill');
+  var reason = await new Promise(function(resolve){
+    var iv = setInterval(function(){
+      var now = performance.now(), el = now - t0, dt = now - last; last = now;
+      if (t !== token){ clearInterval(iv); resolve('abort'); return; }
+      if (manualStop){ clearInterval(iv); resolve(detected ? 'silence' : 'manual'); return; }
+      var rms = 0;
+      if (an){
+        var sum = 0, i;
+        if (fbuf){ an.getFloatTimeDomainData(fbuf); for (i = 0; i < fbuf.length; i++) sum += fbuf[i] * fbuf[i]; rms = Math.sqrt(sum / fbuf.length); }
+        else { an.getByteTimeDomainData(bbuf); for (i = 0; i < bbuf.length; i++){ var x = (bbuf[i] - 128) / 128; sum += x * x; } rms = Math.sqrt(sum / bbuf.length); }
+      }
+      var lvl = clamp(rms * 9, 0, 1);
+      orb.style.transform = 'scale(' + (1 + lvl * 0.25).toFixed(3) + ')';
+      ring.style.transform = 'scale(' + (1 + lvl * 0.45).toFixed(3) + ')';
+      fill.style.width = Math.round(lvl * 100) + '%';
+      if (!an){ if (el > maxMs){ clearInterval(iv); resolve('max'); } return; }
+      if (el < 300){ noise += rms; noiseN++; return; }     // calibrate room noise
+      var floor = noiseN ? noise / noiseN : 0.005;
+      var thr = clamp(floor * 2.5, 0.012, 0.07);
+      if (rms > thr){ speechMs += dt; lastVoice = now; if (speechMs > 180) detected = true; }
+      else if (!detected){ speechMs = Math.max(0, speechMs - dt / 2); }
+      var r = null;
+      if (detected && now - lastVoice > silenceMs) r = 'silence';
+      else if (!detected && el > noSpeechMs) r = 'nospeech';
+      else if (el > maxMs) r = 'max';
+      if (r){ clearInterval(iv); resolve(r); }
+    }, 50);
+  });
+  manualStop = false;
+  $('#btnSkipRec').classList.add('hidden');
+  var endAt = performance.now();
+  try { if (rec.state !== 'inactive') rec.stop(); } catch(e){}
+  await Promise.race([stopped, sleep(1500)]);
+  recorder = null;
+  releaseMic();                     // stop mic BEFORE playback (iOS earpiece / low-volume fix)
+  if (reason === 'abort') throw new Abort();
+  var blob = new Blob(chunks, { type: (rec.mimeType || mime || 'audio/webm').split(';')[0] });
+  // play only up to shortly after the last detected speech (cut trailing silence)
+  var playMs = reason === 'silence' ? (lastVoice - t0) + 450 : (endAt - t0);
+  return { blob: blob, reason: reason, playMs: Math.max(800, playMs), size: blob.size };
+}
+var manualStop = false;
+
+/* ---------------- Playback ---------------- */
+function playBlob(blob, playMs, t){
+  return new Promise(function(resolve){
+    if (lastBlobUrl && lastBlob !== blob){ try { URL.revokeObjectURL(lastBlobUrl); } catch(e){} lastBlobUrl = null; }
+    if (!lastBlobUrl) lastBlobUrl = URL.createObjectURL(blob);
+    lastBlob = blob;
+    player.muted = false; player.volume = 1;
+    player.src = lastBlobUrl;
+    var done = false;
+    function fin(ok){
+      if (done) return; done = true;
+      clearTimeout(cut); clearTimeout(hard); clearInterval(w);
+      try { player.pause(); } catch(e){}
+      player.onended = player.onerror = null;
+      resolve(ok);
+    }
+    player.onended = function(){ fin(true); };
+    player.onerror = function(){ fin(false); };
+    var cut = null, hard = setTimeout(function(){ fin(true); }, playMs + 4000);
+    player.onplaying = function(){ player.onplaying = null; clearTimeout(cut); cut = setTimeout(function(){ fin(true); }, playMs + 150); };
+    var w = setInterval(function(){ if (t !== undefined && t !== token) fin(false); }, 100);
+    try {
+      var p = player.play();
+      if (p && p.catch) p.catch(function(){ fin(false); });
+    } catch(e){ fin(false); }
+  });
+}
+
+/* ---------------- Wake lock ---------------- */
+async function keepAwake(){
+  try { if ('wakeLock' in navigator && !wakeLock){ wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', function(){ wakeLock = null; }); } } catch(e){}
+}
+
+/* ---------------- Main loop ---------------- */
+async function runLoop(){
+  clearAuto();
+  var t = ++token;
+  running = true;
+  var text = sentences[idx];
+  showControls('run');
+  $('#btnSkipRec').classList.add('hidden');
+  setHint('');
+  keepAwake();
+  try {
+    await synthReset(); check(t);
+    var reads = settings.reads;
+    for (var i = 1; i <= reads; i++){
+      setPhase('bot');
+      setStatus('BOT ĐANG ĐỌC (LƯỢT ' + round + ' - LẦN ' + i + '/' + reads + ')...', '');
+      setHint('Nghe kỹ ngữ điệu và nối âm');
+      var rate = settings.rate * (i > 1 && settings.slowSecond ? 0.88 : 1);
+      var ok = await speak(text, rate, t); check(t);
+      if (!ok && i === 1 && synth && !synth.speaking){ await synthReset(); }
+      await sleep(i < reads ? settings.pause * 1000 : 450); check(t);
+    }
+    setPhase('idle'); setStatus('CHUẨN BỊ...', ''); setHint('');
+    var res = await recordUser(t, text); check(t);
+    if (res.reason === 'nospeech' || res.reason === 'manual'){
+      lastBlob = res.blob; if (lastBlobUrl){ try { URL.revokeObjectURL(lastBlobUrl); } catch(e){} lastBlobUrl = null; } lastPlayMs = res.playMs;
+      finish(false, res.reason === 'nospeech' ? 'KHÔNG NGHE THẤY GIỌNG ANH — BẤM “ĐỌC LẠI” ĐỂ THỬ LẠI' : 'ĐÃ DỪNG GHI ÂM');
+      return;
+    }
+    setPhase('play');
+    setStatus('ĐANG PHÁT LẠI GIỌNG ANH...', '');
+    setHint('So sánh với giọng bot nhé');
+    await sleep(350); check(t);           // let iOS switch audio route back to the loudspeaker
+    lastPlayMs = res.playMs;
+    var played = await playBlob(res.blob, res.playMs, t); check(t);
+    finish(true, played ? 'XONG! ĐỌC LẠI HOẶC SANG CÂU TIẾP' : 'CHƯA PHÁT ĐƯỢC — BẤM “NGHE LẠI GIỌNG ANH”');
+  } catch(e){
+    if (isAbort(e)) return;
+    running = false;
+    releaseMic();
+    console.error(e);
+    if (e && e.name === 'MicError') micFail(e.orig);
+    else { setPhase('idle'); setStatus('CÓ LỖI: ' + ((e && e.message) || e), 'err'); showControls('done'); }
+  }
+}
+function finish(ok, msg){
+  running = false;
+  setPhase('done');
+  setStatus(msg, ok ? '' : 'warn');
+  setHint('');
+  $('#btnReplayMe').classList.toggle('hidden', !lastBlob || !lastBlob.size);
+  showControls('done');
+  if (ok && settings.autoNext){
+    var t = token, n = 2;
+    var note = $('#autoNote');
+    note.classList.remove('hidden'); note.textContent = 'Tự chuyển câu sau ' + n + ' giây…';
+    autoTimer = setInterval(function(){
+      if (t !== token){ clearAuto(); return; }
+      n--;
+      if (n <= 0){ clearAuto(); goNext(); }
+      else note.textContent = 'Tự chuyển câu sau ' + n + ' giây…';
+    }, 1000);
+  }
+}
+function clearAuto(){ if (autoTimer){ clearInterval(autoTimer); autoTimer = null; } $('#autoNote').classList.add('hidden'); }
+function micFail(e){
+  setPhase('idle');
+  var name = e && e.name;
+  var msg;
+  if (name === 'NotAllowedError' || name === 'SecurityError') msg = 'CHƯA ĐƯỢC PHÉP DÙNG MICRO';
+  else if (name === 'NotFoundError') msg = 'KHÔNG TÌM THẤY MICRO';
+  else msg = 'KHÔNG MỞ ĐƯỢC MICRO';
+  setStatus(msg, 'err');
+  setHint('iPhone: Cài đặt › Safari › Micrô › Cho phép (hoặc bấm “aA” trên thanh địa chỉ). Android: bấm biểu tượng bên trái địa chỉ › Quyền › Micrô. Sau đó bấm “Đọc lại”.');
+  showControls('done');
+}
+function stopAll(msg){
+  token++;
+  running = false;
+  clearAuto();
+  manualStop = false;
+  try { if (synth) synth.cancel(); } catch(e){}
+  try { if (recorder && recorder.state !== 'inactive') recorder.stop(); } catch(e){}
+  recorder = null;
+  releaseMic();
+  try { player.pause(); } catch(e){}
+  setPhase('idle');
+  $('#btnSkipRec').classList.add('hidden');
+  if (started){
+    setStatus(msg || 'ĐÃ TẠM DỪNG', 'idle'); setHint('');
+    $('#btnReplayMe').classList.toggle('hidden', !lastBlob || !lastBlob.size);
+    showControls('done');
+  }
+}
+function goNext(){
+  stopAll(' ');
+  idx = (idx + 1) % sentences.length; round = 1; lastBlob = null;
+  if (idx === 0) toast('Hết danh sách — quay lại câu 1 🎉');
+  renderSentence(); runLoop();
+}
+
+/* ---------------- Buttons ---------------- */
+$('#btnStart').addEventListener('click', async function(){
+  if (!synth){ setStatus('TRÌNH DUYỆT KHÔNG HỖ TRỢ GIỌNG ĐỌC', 'err'); setHint('Hãy mở bằng Safari (iPhone) hoặc Chrome (Android).'); return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder){
+    setStatus('TRÌNH DUYỆT KHÔNG HỖ TRỢ GHI ÂM', 'err'); setHint('Cần iOS 14.3+ (Safari) hoặc Chrome mới trên Android.'); return;
+  }
+  unlockAudio();             // synchronous, inside the tap gesture
+  started = true;
+  showControls('run');
+  setStatus('ĐANG XIN QUYỀN MICRO...', ''); setHint('Chọn “Cho phép” khi điện thoại hỏi');
+  try {
+    var s = await getMic();
+    s.getTracks().forEach(function(tr){ tr.stop(); });
+    setAudioSession('playback');
+  } catch(e){ setAudioSession('playback'); micFail(e); return; }
+  if (!voices.length) await loadVoices();
+  round = 1;
+  runLoop();
+});
+$('#btnStop').addEventListener('click', function(){ stopAll(); });
+$('#btnSkipRec').addEventListener('click', function(){ manualStop = true; });
+$('#btnRepeat').addEventListener('click', function(){ unlockIfNeeded(); stopAll(' '); round++; runLoop(); });
+$('#btnNext').addEventListener('click', function(){ unlockIfNeeded(); goNext(); });
+$('#btnPrev').addEventListener('click', function(){
+  stopAll(' ');
+  idx = (idx - 1 + sentences.length) % sentences.length; round = 1; lastBlob = null;
+  renderSentence(); runLoop();
+});
+$('#btnReplayMe').addEventListener('click', async function(){
+  if (!lastBlob) return;
+  stopAll(' ');
+  var t = token;
+  setPhase('play'); setStatus('ĐANG PHÁT LẠI GIỌNG ANH...', '');
+  showControls('run');
+  await playBlob(lastBlob, lastPlayMs || 15000, t);
+  if (t === token) finish(true, 'XONG! ĐỌC LẠI HOẶC SANG CÂU TIẾP');
+});
+function unlockIfNeeded(){ if (audioCtx && audioCtx.state !== 'running'){ try { audioCtx.resume(); } catch(e){} } }
+$('#counter').addEventListener('click', function(){
+  var v = prompt('Đi tới câu số (1–' + sentences.length + '):', String(idx + 1));
+  if (v == null) return;
+  var n = parseInt(v, 10);
+  if (!n || n < 1 || n > sentences.length){ toast('Số câu không hợp lệ'); return; }
+  var wasStarted = started;
+  stopAll(' ');
+  idx = n - 1; round = 1; lastBlob = null; renderSentence();
+  if (wasStarted){ setStatus('BẤM “ĐỌC LẠI” ĐỂ BẮT ĐẦU CÂU NÀY', 'idle'); }
+});
+
+/* list sheet */
+function openSheet(id){ $(id).classList.remove('hidden'); }
+function closeSheet(id){ $(id).classList.add('hidden'); }
+function parseList(txt){
+  return txt.split(/\r?\n/).map(function(l){ return l.replace(/^\s*(?:\d+[.)]|[-*•])\s+/, '').trim(); }).filter(Boolean);
+}
+function updateCount(){ $('#listCount').textContent = parseList($('#listText').value).length + ' câu'; }
+$('#btnList').addEventListener('click', function(){
+  if (running) stopAll();
+  $('#listText').value = sentences.join('\n'); updateCount(); openSheet('#sheetList');
+});
+$('#listText').addEventListener('input', updateCount);
+$('#listCancel').addEventListener('click', function(){ closeSheet('#sheetList'); });
+$('#listSave').addEventListener('click', function(){
+  var list = parseList($('#listText').value);
+  if (!list.length){ toast('Danh sách đang trống'); return; }
+  var changed = list.join('\n') !== sentences.join('\n');
+  sentences = list; LS.set('sh.sentences', sentences);
+  if (changed){ idx = 0; round = 1; lastBlob = null; }
+  idx = clamp(idx, 0, sentences.length - 1);
+  renderSentence(); closeSheet('#sheetList'); toast('Đã lưu ' + list.length + ' câu');
+  if (started){ setStatus('BẤM “ĐỌC LẠI” ĐỂ BẮT ĐẦU', 'idle'); showControls('done'); }
+});
+$('#listReset').addEventListener('click', function(){
+  if (!confirm('Thay bằng 30 câu mẫu? Danh sách hiện tại sẽ bị xoá.')) return;
+  $('#listText').value = DEFAULT_SENTENCES.join('\n'); updateCount();
+});
+
+/* settings sheet */
+function fmtS(v){ return (Math.round(v * 10) / 10).toString().replace('.', ',') + ' giây'; }
+function syncSettingsUI(){
+  $('#sRate').value = settings.rate; $('#vRate').textContent = Math.round(settings.rate * 100) + '%';
+  $('#sSlow').checked = !!settings.slowSecond;
+  $('#sReads').value = settings.reads; $('#vReads').textContent = settings.reads + ' lần';
+  $('#sPause').value = settings.pause; $('#vPause').textContent = fmtS(settings.pause);
+  $('#sSilence').value = settings.silence; $('#vSilence').textContent = fmtS(settings.silence);
+  $('#sAuto').checked = !!settings.autoNext;
+  $('#sIpa').checked = !!settings.showIpa;
+  fillVoiceSelect();
+}
+function saveSettings(){ LS.set('sh.settings', settings); syncSettingsUI(); }
+$('#btnSettings').addEventListener('click', function(){ if (running) stopAll(); syncSettingsUI(); openSheet('#sheetSettings'); });
+$('#settingsClose').addEventListener('click', function(){ closeSheet('#sheetSettings'); });
+$('#sRate').addEventListener('input', function(e){ settings.rate = parseFloat(e.target.value); saveSettings(); });
+$('#sSlow').addEventListener('change', function(e){ settings.slowSecond = e.target.checked; saveSettings(); });
+$('#sReads').addEventListener('input', function(e){ settings.reads = parseInt(e.target.value, 10); saveSettings(); });
+$('#sPause').addEventListener('input', function(e){ settings.pause = parseFloat(e.target.value); saveSettings(); });
+$('#sSilence').addEventListener('input', function(e){ settings.silence = parseFloat(e.target.value); saveSettings(); });
+$('#sAuto').addEventListener('change', function(e){ settings.autoNext = e.target.checked; saveSettings(); });
+$('#sIpa').addEventListener('change', function(e){ settings.showIpa = e.target.checked; saveSettings(); renderIpa(idx); });
+$('#sVoice').addEventListener('change', function(e){ settings.voiceURI = e.target.value; saveSettings(); chooseVoice(); });
+$('#btnTestVoice').addEventListener('click', async function(){
+  if (!synth) return;
+  if (!started) unlockAudio();
+  await synthReset();
+  speak(sentences[idx] || 'Hello! This is a test.', settings.rate);
+});
+document.querySelectorAll('.sheet').forEach(function(sh){
+  sh.addEventListener('click', function(e){ if (e.target === sh) sh.classList.add('hidden'); });
+});
+
+/* pause when app goes to background */
+document.addEventListener('visibilitychange', function(){
+  if (document.hidden && running) stopAll('ĐÃ TẠM DỪNG (APP BỊ ẨN)');
+});
+
+/* init */
+setPhase('idle');
+renderSentence();
+showControls('start');
+if (!window.isSecureContext) { setStatus('CẦN MỞ BẰNG LINK HTTPS ĐỂ DÙNG MICRO', 'err'); }
+window.__shadow = { version: 1 };
+})();
+</script>
+</body>
+</html>
