@@ -1,0 +1,14 @@
+name: probe-yt
+on:
+  push:
+    branches: [cursor/youtube-shadowing-v2-dfb9]
+    paths: [.github/workflows/probe.yml]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: pip install -U "yt-dlp[default]"
+      - run: yt-dlp --version
+      - run: yt-dlp --js-runtimes node --skip-download --list-subs "https://www.youtube.com/watch?v=UNP03fDSj1U" || true
+      - run: yt-dlp --js-runtimes node --skip-download --write-subs --sub-langs "en.*,en" --sub-format vtt -o "/tmp/s" "https://www.youtube.com/watch?v=UNP03fDSj1U" && ls -la /tmp && head -50 /tmp/s*.vtt || true
+      - run: curl -sS -A "Mozilla/5.0" "https://www.youtube.com/watch?v=UNP03fDSj1U&hl=en" | grep -o '"playabilityStatus":{"status":"[A-Z_]*"' || true
