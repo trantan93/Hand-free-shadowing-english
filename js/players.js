@@ -50,6 +50,7 @@ YouTubeSource.prototype.load = function (videoId) {
           onError: function (e) {
             self.lastError = e.data;
             if (!settled) { settled = true; clearTimeout(to); reject(err('yt', e.data)); }
+            else if (self.onLateError) self.onLateError(e.data);   // e.g. embedding disabled: reported after onReady
           }
         }
       });
@@ -99,13 +100,15 @@ YouTubeSource.prototype.play = function (start, end, rate, o) {
       try { st = p.getPlayerState(); ct = p.getCurrentTime(); muted = p.isMuted(); } catch (e) { return done('error'); }
       if (!started) {
         var inSeg = ct >= start - 0.6 && ct < end;
+        var advancing = lastCt >= 0 && ct > lastCt + 0.01;
+        if (st === 3 && advancing) st = 1;     // some browsers keep reporting BUFFERING while the video is already playing
         if (st === 1 && muted) {
           // Autoplay with sound was refused and YouTube fell back to muted playback.
           if (!mutedSince) mutedSince = now();
           try { p.unMute(); } catch (e) {}
           if (now() - mutedSince > 1200 && !needTap) { needTap = true; try { p.pauseVideo(); } catch (e) {} if (o.onNeedTap) o.onNeedTap(true); }
         } else if (st === 1 && inSeg) {
-          if (lastCt >= 0 && ct > lastCt + 0.01) {
+          if (advancing) {
             started = true; startedAt = now();
             if (needTap) { needTap = false; if (o.onNeedTap) o.onNeedTap(false); }
           }

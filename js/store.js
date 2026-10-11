@@ -20,13 +20,32 @@ function tx(mode, fn) {
       var r = fn(st);
       if (r) r.onsuccess = function () { out = r.result; };
       t.oncomplete = function () { resolve(out); };
-      t.onerror = t.onabort = function () { reject(t.error); };
+      t.onerror = t.onabort = function () { reject(t.error || new Error('idb')); };
     });
   });
 }
+function toBuffer(blob) {
+  if (blob.arrayBuffer) return blob.arrayBuffer();
+  return new Promise(function (resolve, reject) {
+    var fr = new FileReader();
+    fr.onload = function () { resolve(fr.result); };
+    fr.onerror = function () { reject(fr.error); };
+    fr.readAsArrayBuffer(blob);
+  });
+}
+// Safari (private mode, some iOS versions) refuses Blob values in IndexedDB, so store raw bytes + type.
 root.ShadowStore = {
-  put: function (key, blob) { return tx('readwrite', function (s) { return s.put(blob, key); }); },
-  get: function (key) { return tx('readonly', function (s) { return s.get(key); }); },
+  put: function (key, blob) {
+    return toBuffer(blob).then(function (buf) {
+      return tx('readwrite', function (s) { return s.put({ type: blob.type || '', data: buf }, key); });
+    });
+  },
+  get: function (key) {
+    return tx('readonly', function (s) { return s.get(key); }).then(function (v) {
+      if (!v || v instanceof Blob) return v;
+      return new Blob([v.data], { type: v.type });
+    });
+  },
   del: function (key) { return tx('readwrite', function (s) { return s.delete(key); }); }
 };
 })(window);

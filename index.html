@@ -116,6 +116,7 @@
   .errbox{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#fecaca;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.5}
   /* v2: lessons from YouTube / audio files */
   .brand{min-width:0;flex:1 1 auto;max-width:58%;height:40px;padding:0 12px;border-radius:12px;background:var(--panel)}
+  .counter,.tools{flex:none;white-space:nowrap}
   .brand:active{background:var(--panel2)}
   .brand .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
   .brand .dot{flex:none}
@@ -166,6 +167,8 @@
   .slist .tm{color:var(--muted);font-size:12px;margin-left:auto;padding-left:8px;font-variant-numeric:tabular-nums;white-space:nowrap}
   .adjgrid{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:center;margin-top:12px;font-size:14px;color:var(--muted)}
   .adjgrid .small{width:100%;padding:0 8px;font-size:14px}
+  .adjgrid .small,.small.adjbtn{background:var(--panel2);border:1px solid var(--line);color:var(--text)}
+  .field small.adjval{color:var(--green);font-weight:700;font-size:14px}
 </style>
 </head>
 <body>
@@ -253,17 +256,6 @@
   <div class="panel">
     <h2>Cài đặt</h2>
     <div class="field only-v2">
-      <label>Chỉnh thời gian câu đang học <span class="val" id="vAdj"></span></label>
-      <div class="adjgrid">
-        <span>Đầu câu</span><button class="small" data-adj="s,-0.2">← Sớm hơn</button><button class="small" data-adj="s,0.2">Muộn hơn →</button>
-        <span>Cuối câu</span><button class="small" data-adj="e,-0.2">← Sớm hơn</button><button class="small" data-adj="e,0.2">Muộn hơn →</button>
-        <span>Cả bài</span><button class="small" data-adj="all,-0.25">← Sớm hơn</button><button class="small" data-adj="all,0.25">Muộn hơn →</button>
-      </div>
-      <div class="smallrow" style="justify-content:flex-start;margin-top:10px">
-        <button class="small" id="btnAdjTest">▶ Nghe thử câu</button><button class="small" id="btnAdjReset">Về mặc định</button></div>
-      <small>Dùng khi câu bị mất chữ đầu/cuối hoặc lẫn chữ của câu bên cạnh. “Cả bài” dùng khi mọi câu đều lệch như nhau.</small>
-    </div>
-    <div class="field only-v2">
       <label>Tốc độ phát giọng gốc</label>
       <select id="sSrcRate"><option value="0.5">0,5× (rất chậm)</option><option value="0.75">0,75× (chậm)</option><option value="1">1× (bình thường)</option></select>
     </div>
@@ -306,6 +298,18 @@
       <select id="sVoice"></select>
       <div class="smallrow" style="justify-content:flex-start;margin-top:10px"><button class="small" id="btnTestVoice">▶ Nghe thử</button></div>
       <small>iPhone: có thể tải giọng “Enhanced/Premium” trong Cài đặt › Trợ năng › Nội dung được đọc › Giọng nói › English để giọng tự nhiên hơn.</small>
+    </div>
+    <div class="field only-v2">
+      <label>Chỉnh thời gian câu đang học</label>
+      <small class="adjval" id="vAdj"></small>
+      <div class="adjgrid">
+        <span>Đầu câu</span><button class="small" data-adj="s,-0.2">← Sớm hơn</button><button class="small" data-adj="s,0.2">Muộn hơn →</button>
+        <span>Cuối câu</span><button class="small" data-adj="e,-0.2">← Sớm hơn</button><button class="small" data-adj="e,0.2">Muộn hơn →</button>
+        <span>Cả bài</span><button class="small" data-adj="all,-0.25">← Sớm hơn</button><button class="small" data-adj="all,0.25">Muộn hơn →</button>
+      </div>
+      <div class="smallrow" style="justify-content:flex-start;margin-top:10px">
+        <button class="small adjbtn" id="btnAdjTest">▶ Nghe thử câu</button><button class="small adjbtn" id="btnAdjReset">Đặt lại câu này</button></div>
+      <small>Dùng khi câu bị mất chữ đầu/cuối hoặc lẫn chữ của câu bên cạnh. “Cả bài” dùng khi mọi câu đều lệch như nhau.</small>
     </div>
     <div class="sheetbtns"><button class="big primary" id="settingsClose">Xong</button></div>
   </div>
@@ -373,8 +377,8 @@
 <audio id="player" playsinline preload="auto"></audio>
 <audio id="srcAudio" playsinline preload="auto"></audio>
 <script src="js/lesson.js?v=2"></script>
-<script src="js/players.js?v=2"></script>
-<script src="js/store.js?v=2"></script>
+<script src="js/players.js?v=3"></script>
+<script src="js/store.js?v=3"></script>
 
 <script>
 (function(){
@@ -1127,7 +1131,10 @@ function getLessonData(ref){
 function loadSource(){
   var l = lesson;
   if (l.youtube){
-    if (!ytSrc) ytSrc = new P2.YouTubeSource($('#ytBox'));
+    if (!ytSrc){
+      ytSrc = new P2.YouTubeSource($('#ytBox'));
+      ytSrc.onLateError = function(code){ if (!running && src === ytSrc) srcFail('yt' + code, started); };
+    }
     src = ytSrc;
     return ytSrc.load(l.youtube).then(function(){
       if (!l.autoTitle) return;
@@ -1295,7 +1302,7 @@ function deleteUserLesson(id){
 
 /* create lesson sheet */
 var createKind = 'yt';
-var HELP_YT = 'Cách lấy file phụ đề: mở trang <b>downsub.com</b> (hoặc savesubs.com) trên điện thoại → dán link video → tải dòng <b>English</b> dạng <b>SRT</b>. Tránh dòng “auto-generated” (phụ đề máy tự tạo, hay sai). Xem thêm <a href="HUONG-DAN-V2.md" target="_blank" rel="noopener">hướng dẫn</a>.';
+var HELP_YT = 'Cách lấy file phụ đề: mở trang <b>downsub.com</b> (hoặc savesubs.com) trên điện thoại → dán link video → tải dòng <b>English</b> dạng <b>SRT</b>. Tránh dòng “auto-generated” (phụ đề máy tự tạo, hay sai). Xem thêm <a href="https://github.com/trantan93/Hand-free-shadowing-english/blob/main/HUONG-DAN-V2.md" target="_blank" rel="noopener">hướng dẫn</a>.';
 var HELP_FILE = 'File phụ đề phải khớp với chính file âm thanh này. App sẽ nghe file âm thanh để cắt câu chính xác hơn.';
 function openCreate(kind){
   createKind = kind;
@@ -1397,7 +1404,7 @@ function fmtD(v){ return (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixe
 function updateAdjLabel(){
   if (!lesson){ $('#vAdj').textContent = ''; return; }
   var a = adjMap[lesson.key] || {}, d = (a.s && a.s[idx]) || [0, 0];
-  $('#vAdj').textContent = 'đầu ' + fmtD(d[0]) + ' · cuối ' + fmtD(d[1]) + (a.all ? ' · cả bài ' + fmtD(a.all) : '');
+  $('#vAdj').textContent = 'Câu ' + (idx + 1) + ': đầu câu ' + fmtD(d[0]) + ' · cuối câu ' + fmtD(d[1]) + ' · cả bài ' + fmtD(a.all || 0);
 }
 document.querySelectorAll('[data-adj]').forEach(function(b){
   b.addEventListener('click', function(){
